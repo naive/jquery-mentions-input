@@ -163,7 +163,7 @@
       mentionText = mentionText.replace(/ {2}/g, '&nbsp; '); //Replace the 2 preceding token to &nbsp;
 
       elmInputBox.data('messageText', syntaxMessage); //Save the messageText to elmInputBox
-	  elmInputBox.trigger('updated');
+      elmInputBox.trigger('updated');
       elmMentionsOverlay.find('div').html(mentionText); //Insert into a div of the elmMentionsOverlay the mention text
     }
 
@@ -394,14 +394,14 @@
     }
 
 	//Populates dropdown
-    function populateDropdown(query, results) {
+    function populateDropdown(query, results, valueProperty) {
       elmAutocompleteList.show(); //Shows the autocomplete list
 
       if(!settings.allowRepeat) {
         // Filter items that has already been mentioned
         var mentionValues = _.pluck(mentionsCollection, 'value');
         results = _.reject(results, function (item) {
-          return _.include(mentionValues, item.name);
+          return _.include(mentionValues, item[valueProperty]);
         });
       }
 
@@ -416,13 +416,13 @@
       _.each(results, function (item, index) {
         var itemUid = _.uniqueId('mention_'); //Gets the item with unique id
 
-        autocompleteItemCollection[itemUid] = _.extend({}, item, {value: item.name}); //Inserts the new item to autocompleteItemCollection
+        autocompleteItemCollection[itemUid] = _.extend({}, item, {value: item[valueProperty]}); //Inserts the new item to autocompleteItemCollection
 
         var elmListItem = $(settings.templates.autocompleteListItem({
           'id'      : utils.htmlEncode(item.id),
           'display' : utils.htmlEncode(item[settings.display]),
           'type'    : utils.htmlEncode(item.type),
-          'content' : utils.highlightTerm(utils.htmlEncode((item.display ? item.display : item.name)), query)
+          'content' : utils.highlightTerm(utils.htmlEncode((item.display ? item.display : item[valueProperty])), query)
         })).attr('data-uid', itemUid); //Inserts the new item to list
 
 		//If the index is 0
@@ -457,8 +457,8 @@
 	  //If the query is not null, undefined, empty and has the minimum chars
       if (query && query.length && query.length >= settings.minChars) {
 		//Call the onDataRequest function and then call the populateDropDrown
-        settings.onDataRequest.call(this, 'search', query, function (responseData) {
-          populateDropdown(query, responseData);
+        settings.onDataRequest.call(this, 'search', query, function (responseData, valueProperty) {
+          populateDropdown(query, responseData, valueProperty);
           elmInputBox.data('triggerChar', triggerChar);
         }, triggerChar);
       } else { //If the query is null, undefined, empty or has not the minimun chars
