@@ -186,13 +186,15 @@
 	//Adds mention to mentions collections
     function addMention(mention) {
       var currentMessage = getInputBoxValue(); //Get the actual value of the text area
+      currentMessage = currentMessage + ' ';
       var currentTriggerChar = elmInputBox.data('triggerChar');
 
       // Using a regex to figure out positions
-      var regex = new RegExp("\\" + currentTriggerChar + currentDataQuery, "gi");
+      // finds only position of (query+space) at end so as not to replace similar user already mentioned.
+      var regex = new RegExp("\\" + currentTriggerChar + currentDataQuery + "\\s", "gi");
       regex.exec(currentMessage); //Executes a search for a match in a specified string. Returns a result array, or null
 
-      var startCaretPosition = regex.lastIndex - currentDataQuery.length - 1; //Set the star caret position
+      var startCaretPosition = regex.lastIndex - currentDataQuery.length - 2; //Set the star caret position
       var currentCaretPosition = regex.lastIndex; //Set the current caret position
 
       var start = currentMessage.substr(0, startCaretPosition);
